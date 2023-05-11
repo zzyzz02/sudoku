@@ -13,11 +13,11 @@ class SudokuSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('users')->insert([
+        DB::table('sudokus')->insert([
             'name' => "Level 1",
             'file_name' => "level_1.txt",
         ]);
-        DB::table('users')->insert([
+        DB::table('sudokus')->insert([
             'name' => "Level 2",
             'file_name' => "level_2.txt",
         ]);
