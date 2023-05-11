@@ -1,0 +1,143 @@
+body {
+	font-family: roboto;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-size: 3vh;
+	background-color: #4c9689 !important;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+}
+
+h1 {
+	font-size: 4vh;
+}
+
+.btn.open {
+	position: absolute;
+	left: 1vw;
+	top: 0;
+	font-size: 5vh;
+}
+
+input {
+	font-size: 2vh;
+}
+button {
+	font-size: 2vh;
+}
+
+.sudoku-grid-container {
+	display: grid;
+	grid-template-columns: auto auto auto;
+	padding: 10px;
+	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+	max-width: 50vw;
+	width: 100%;
+}
+
+.sudoku-grid-container table {
+	width: 100%;
+	border: 3px solid #2e222d;
+	text-align: center;
+}
+.sudoku-grid-container td {
+	padding: 0px;
+
+	border: 3px solid #2e222d;
+	text-align: center;
+}
+.sudoku-grid-container input {
+	height: 5vh;
+	width: 100%;
+	border: none;
+	text-align: center;
+	-moz-appearance: textfield;
+	font-size: 3vh;
+	background-color: #4d394b;
+
+	color: white;
+}
+.sudoku-grid-container input:read-only {
+	background-color: #4c9689;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+input.error {
+	/* border: 3px solid #4e1717; */
+	background-color: #4e1717;
+}
+
+select {
+	font-size: 3vh;
+}
+
+.loading-screen {
+	width: 100vw;
+	height: 100vh;
+	position: fixed;
+	top: 0;
+	background-color: rgba(0, 0, 0, 0.279);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 99;
+}
+
+.lds-ring {
+	display: inline-block;
+	position: relative;
+	width: 80px;
+	height: 80px;
+}
+.lds-ring div {
+	box-sizing: border-box;
+	display: block;
+	position: absolute;
+	width: 64px;
+	height: 64px;
+	margin: 8px;
+	border: 8px solid #fff;
+	border-radius: 50%;
+	animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+	border-color: #fff transparent transparent transparent;
+}
+.lds-ring div:nth-child(1) {
+	animation-delay: -0.45s;
+}
+.lds-ring div:nth-child(2) {
+	animation-delay: -0.3s;
+}
+.lds-ring div:nth-child(3) {
+	animation-delay: -0.15s;
+}
+@keyframes lds-ring {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@media (max-width: 1200px) {
+	.container {
+		flex-direction: column;
+	}
+	.sudoku-grid-container {
+		max-width: 90vw;
+	}
+	body {
+		font-size: 2vh;
+	}
+	h1 {
+		font-size: 3vh;
+	}
+}

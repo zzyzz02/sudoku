@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sudoku Solver By Fajar Aulia</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+            rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    </head>
+
+    <body>
+        <div class="d-none loading-screen">
+            <div class="lds-ring">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample"
+            aria-labelledby="offcanvasExampleLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasExampleLabel">Settings</h5>
+                <button name="dismiss-canvass" type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                    aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div>
+                    Silahkan Pilih Level Yang Tersedia
+                </div>
+                <div class="dropdown mt-3">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    </button>
+                    <ul class="dropdown-menu">
+                    </ul>
+                </div>
+                <div class="my-3">
+                    Anda juga dapat board dengan kesulitan yang bisa anda tentukan sendiri, Silahkan upload file yang
+                    sudah anda buat, atau klik <b>Create New</b>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">Level Name</span>
+                    <input name="upload_level_name" type="text" class="form-control" placeholder="e.g Level 10"
+                        aria-label="Username" aria-describedby="basic-addon1">
+                    <div id="validation_level_name" class="invalid-feedback">
+                        Level Name Tidak Boleh Kosong
+                    </div>
+                </div>
+                <div class="d-flex">
+
+                    <input class="form-control " accept=".txt" type="file" id="formFile">
+                    <button class="ms-2 btn btn-primary" onclick="uploadFiles()">Upload</button>
+
+                </div>
+
+                <div class="mt-2">
+                    <button class="btn btn-success" onclick="createNew()">Create New</button>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn open" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample"
+            aria-controls="offcanvasExample">
+            <i class="bi bi-list"></i>
+        </button>
+
+
+        <h1 class="text-center mt-5">Sudoku Solver By Fajar Aulia</h1>
+        <div class="sudoku-grid-container">
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="display btn btn-success" onclick="checkSolvingSudoku()">Solve</button>
+            <button class="display btn btn-info mx-2" onclick=" displaySudoku(sudokuSolved)">View Answer</button>
+            <button class="display btn btn-light" onclick="displaySudoku(sudokuDisplay)">Reset</button>
+            <input class="d-none new form-control" type="text" name="saved_level_name" placeholder="eg. Level 10">
+            <button onclick="savedResult()" class="d-none new btn btn-success me-2">Save</button>
+            <button class="d-none new btn btn-light" onclick="discardCreateNew()">Discard</button>
+        </div>
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <script src="https://code.jquery.com/jquery-3.6.4.js"
+            integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"
+            integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE"
+            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js"
+            integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ"
+            crossorigin="anonymous"></script>
+
+        <script>
+            const url = "http://localhost:8000/api/sudoku/";
+
+            let alldata;
+            let sudokuDisplay;
+            let sudokuSolved;
+            const newTempalte = [[0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0]];
+
+
+            $(document).ready(function () {
+                getAllData().done(() => {
+                    alldata.forEach((data) => {
+                        $(".btn.dropdown-toggle").html(alldata[0].name);
+                        $("ul.dropdown-menu").append(`<li onclick="changeLevel(${data.id},'${data.name}')" class="dropdown-item">${data.name}</li>`)
+                    })
+                    getDetailSudoku(alldata[0]["id"]).done(() => displaySudoku(sudokuDisplay));
+                });
+
+
+            })
+
+            function changeLevel(id, name) {
+                $("button.new").addClass("d-none");
+                $("input.new").addClass("d-none");
+                $("button.display").removeClass("d-none");
+                $("button.display").addClass("d-inline");
+                getDetailSudoku(id).done(() => {
+                    $(".btn.dropdown-toggle").html(name);
+                    displaySudoku(sudokuDisplay)
+                });
+
+
+            }
+
+            function getAllData() {
+                return $.ajax({
+                    url: url,
+                    dataType: "json",
+                    type: "GET",
+                    beforeSend: function () {
+                        $(".loading-screen").removeClass("d-none");
+                    },
+                    success: function (response) {
+                        alldata = response.data;
+                        $(".loading-screen").addClass("d-none");
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(xhr + "\n" + xhr.responseText + "\n" + thrownError)
+                        $(".loading-screen").addClass("d-none");
+                    },
+                })
+            }
+
+            function createNew() {
+                $("button.display").addClass("d-none");
+                $("button.new").removeClass("d-none");
+                $("button.new").addClass("d-inline");
+                $("input.new").removeClass("d-none");
+                $("input.new").addClass("d-inline");
+
+
+                $(".sudoku-grid-container").html("");
+                newTempalte.forEach((column, indexColumn) => {
+                    let table = document.createElement("table");
+                    let oldTR;
+
+                    column.forEach((item, index) => {
+                        let tr = document.createElement("tr");
+                        let input = document.createElement("input");
+                        input.setAttribute("name", `column[${indexColumn}][]`);
+                        input.setAttribute("type", "number")
+                        let td = document.createElement("td");
+                        if (index == 0 || index !== 1 && (index % 3) == 0) {
+                            oldTR = tr;
+                            table.appendChild(oldTR);
+                        }
+                        td.appendChild(input);
+                        oldTR.appendChild(td)
+
+                    })
+
+
+                    $(".sudoku-grid-container").append(table);
+                    $(".sudoku-grid-container input").on("keypress", function () {
+                        if (this.value.length == 1) return false;
+
+                    })
+                });
+            }
+
+            function savedResult() {
+                let newColumn = [[], [], [], [], [], [], [], [], []]
+                let formData = $(this).serializeArray();
+                let level_name = $("input[name='saved_level_name']");
+                if (!level_name.val()) {
+                    level_name.addClass("is-invalid");
+                    return false
+                }
+
+                for (let i = 0; i < 9; i++) {
+                    inputValue = [];
+                    let inputtedColumn = document.querySelectorAll(`.sudoku-grid-container input[name='column[${i}][]']`);
+                    inputtedColumn.forEach((input) => {
+                        if (input.value) {
+                            inputValue.push(input.value);
+                        }
+                        else {
+                            inputValue.push('0');
+                        }
+                    })
+                    newColumn[i].push(inputValue);
+                    formData.push({ name: `column${i}`, value: inputValue });
+                }
+                $.ajax({
+                    url: url,
+                    dataType: "json",
+                    type: "post",
+                    data: {
+                        column: formData,
+                        name: level_name.val()
+                    },
+                    beforeSend: function () {
+                        $(".loading-screen").removeClass("d-none");
+                    },
+
+
+                    success: function (response) {
+                        // console.log(response);
+                        alldata = [];
+                        $("ul.dropdown-menu").html("")
+
+                        getAllData().done(() => {
+                            alldata.forEach((data) => {
+                                $(".btn.dropdown-toggle").html(alldata.slice(-1).name);
+                                $("ul.dropdown-menu").append(`<li onclick="changeLevel(${data.id},'${data.name}')" class="dropdown-item">${data.name}</li>`)
+                            })
+                            getDetailSudoku(alldata.slice(-1)[0]["id"]).done(() => {
+
+                                discardCreateNew();
+                                $(".loading-screen").addClass("d-none");
+                                alert(response.message);
+                            });
+
+                        });
+
+
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        if (!xhr.responseText) {
+                            alert("Mohon Maaf Angka yang anda Input tidak memungkinkan untuk dipecahkan, pastikan tidak ada duplikasi antar kolom")
+                            $(".loading-screen").addClass("d-none");
+                            return false
+                        }
+                        let response = JSON.parse(xhr.responseText);
+                        // console.log(response);
+                        if (response.errors.name) {
+                            level_name.addClass("is-invalid");
+                            alert(response.errors.name);
+                        }
+                        else if (response.errors.not_possible) {
+                            formfile.classList.add("is-invalid")
+                            alert(response.errors.not_possible);
+                        }
+                        else {
+                            alert(xhr + "\n" + xhr.responseText + "\n" + thrownError)
+                        }
+                        $(".loading-screen").removeClass("d-none");
+                    },
+                })
+
+
+            }
+
+            function discardCreateNew() {
+                $("button.new").addClass("d-none");
+                $("input.new").addClass("d-none");
+                $("button.display").removeClass("d-none");
+                $("button.display").addClass("d-inline");
+                displaySudoku(sudokuDisplay);
+
+            }
+
+            async function uploadFiles() {
+                let formData = new FormData();
+                let formfile = document.getElementById("formFile");
+                let file = formfile.files[0];
+                let level_name = $("input[name='upload_level_name']");
+                if (!file) {
+                    formfile.classList.add("is-invalid");
+                    return false
+                }
+                if (!level_name.val()) {
+                    level_name.addClass("is-invalid")
+                    return false
+                }
+                formData.append("name", level_name.val());
+                formData.append("file", file);
+                $.ajax({
+                    url: url,
+                    dataType: "json",
+                    type: "post",
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    data: formData,
+                    beforeSend: function () {
+                        $(".loading-screen").removeClass("d-none");
+                    },
+                    success: function (response) {
+                        alldata = [];
+                        $("ul.dropdown-menu").html("")
+
+                        getAllData().done(() => {
+                            alldata.forEach((data) => {
+                                $(".btn.dropdown-toggle").html(alldata.slice(-1).name);
+                                $("ul.dropdown-menu").append(`<li onclick="changeLevel(${data.id},'${data.name}')" class="dropdown-item">${data.name}</li>`)
+                            })
+                            getDetailSudoku(alldata.slice(-1)[0]["id"]).done(() => {
+
+                                displaySudoku(sudokuDisplay)
+                                $("button[name='dismiss-canvass']").trigger("click");
+                                alert(response.message);
+                            });
+
+                        });
+                        $(".loading-screen").addClass("d-none");
+
+
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        if (!xhr.responseText) {
+                            alert("Mohon Maaf File yang anda Input tidak memungkinkan untuk dipecahkan, pastikan tidak ada duplikasi antar kolom, atau coba file lain")
+                            $(".loading-screen").addClass("d-none");
+                            return false
+                        }
+
+                        let response = JSON.parse(xhr.responseText);
+                        if (response.errors.name) {
+                            level_name.addClass("is-invalid");
+                            level_name.parent().find('.invalid-feedback').html(response.errors.name)
+                        }
+                        if (response.errors.wrong_file) {
+                            formfile.classList.add("is-invalid")
+                            alert(response.errors.wrong_file);
+                        }
+                        else if (response.errors.not_possible) {
+                            formfile.classList.add("is-invalid")
+                            alert(response.errors.not_possible);
+                        }
+                        $(".loading-screen").removeClass("d-none");
+                    },
+                })
+
+            }
+
+
+
+            function displaySudoku(sudokuData) {
+                $(".sudoku-grid-container").html("");
+                sudokuData.forEach((column, indexColumn) => {
+                    let table = document.createElement("table");
+                    let oldTR;
+
+                    column.forEach((item, index) => {
+                        let tr = document.createElement("tr");
+                        let input = document.createElement("input");
+                        input.setAttribute("name", `column[${indexColumn}]`);
+                        input.setAttribute("type", "number")
+                        let inputWithVal = document.createElement("input");
+                        inputWithVal.setAttribute("readonly", "")
+                        inputWithVal.setAttribute("name", `column[${indexColumn}]`);
+                        inputWithVal.setAttribute("type", "number")
+                        let td = document.createElement("td");
+                        if (index == 0 || index !== 1 && (index % 3) == 0) {
+                            oldTR = tr;
+                            table.appendChild(oldTR);
+                        }
+                        if (item == 0) {
+                            td.appendChild(input);
+                        }
+                        else {
+                            td.appendChild(inputWithVal);
+                            inputWithVal.value = item;
+                        }
+
+                        oldTR.appendChild(td)
+
+                    })
+
+
+                    $(".sudoku-grid-container").append(table);
+                });
+
+                $(".sudoku-grid-container input").on("keypress", function () {
+                    if (this.value.length == 1) return false;
+
+                })
+
+            }
+            function getDetailSudoku(id) {
+                return $.ajax({
+                    url: url + id,
+                    dataType: "json",
+                    type: "GET",
+                    beforeSend: function () {
+                        $(".loading-screen").removeClass("d-none");
+                    },
+
+                    success: function (response) {
+                        sudokuDisplay = response.sudoku;
+                        sudokuSolved = response.solved;
+                        $(".loading-screen").addClass("d-none");
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        let response = JSON.parse(xhr.responseText);
+                        if (response.errors.file_not_found) {
+                            alert(response.errors.file_not_found)
+                        }
+                        else {
+
+
+                            alert(xhr + "\n" + xhr.responseText + "\n" + thrownError)
+                        }
+                        $(".loading-screen").addClass("d-none");
+                    },
+                })
+            }
+
+            function checkSolvingSudoku() {
+                let allGood = true;
+                if (confirm("Apakah Anda Yakin Jawabannya Sudah Sesuai?")) {
+                    for (let column = 0; column < 9; column++) {
+                        let input = document.querySelectorAll(`.sudoku-grid-container input[name='column[${column}]']`)
+                        input.forEach((item, index) => {
+                            if (!(item.value == sudokuSolved[column][index])) {
+                                item.classList.add("error");
+                                allGood = false;
+                            }
+                        })
+                    }
+                }
+                if (allGood) {
+                    alert("Selamat, Jawaban Anda Benar Semua. Silahkan Coba Level berbeda, atau ciptakan level anda sendiri");
+                }
+
+            }
+
+
+        </script>
+
+
+    </body>
+
+</html>
