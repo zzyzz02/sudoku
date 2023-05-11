@@ -161,6 +161,12 @@
                         $(".loading-screen").addClass("d-none");
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
+                        if (!xhr.responseText) {
+                            alert("Tidak dapat terhubung dengan database, pastikan settingan backend sudah sesuai")
+                            $(".loading-screen").addClass("d-none");
+                            return false
+                        }
+
                         alert(xhr + "\n" + xhr.responseText + "\n" + thrownError)
                         $(".loading-screen").addClass("d-none");
                     },
